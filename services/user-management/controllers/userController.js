@@ -1,21 +1,20 @@
 const UserModel = require("../models/UserModel");
 var svgCaptcha = require('svg-captcha');
 const NodeCache = require('node-cache');
-const { response } = require("express");
 const { verifyCaptcha } = require("../utils/verifyCaptcha");
+const jsonwebtoken=require('jsonwebtoken');
 const captchaCache = new NodeCache({ stdTTL: 300, checkperiod: 60 }); // TTL of 5 minutes
 const getAllUsers=(req,res)=>{
    return res.status(200).json({ error: 'Something went wrong!' });
 }
 const getCaptcha = (req, res) => {
-  //Clear the cache
-  captchaCache.flushAll();
-  var captcha = svgCaptcha.create();
+  let captcha=svgCaptcha.create()
   const key = (Math.random()*100000000).toString().split(".")[0];
   captchaCache.set(key, captcha.text);
   res.json({captcha:captcha,
     txnId:key
   })
+
   return res
 };
 const login=async(req,res)=>{
@@ -31,10 +30,17 @@ const login=async(req,res)=>{
         console.log("Transaction Id is missing")
         return res.status(400).json({ message: 'Transaction ID is required' });
     }
-  let user=await UserModel.findOne({userName})
+  const user=await UserModel.findOne({userName})
   if(user){
     if(user.password===password){
-        return res.status(200).json({ message: 'Login Successful', user: user });
+      try{
+        const token= jsonwebtoken.sign({userName:userName,date:Date.now()},process.env.JWT_SECRET_KEY,{ expiresIn: '1h' })
+        return res.status(200).json({ message: 'Login Successful',token:token, user: user });
+      }catch(e){
+        console.log("Error generating JWT token",e)
+        return res.status(500).json({ message: 'Error generating JWT token' });
+      }
+        
     }else{
         return res.status(401).json({ message: 'Invalid Password' });
     }
@@ -48,8 +54,6 @@ const createUser = async (req, res) => {
     try {
         // Check if the user already exists
         const user = await UserModel.findOne({ userName });
-        console.log("User:", user); // Logs null if no user exists
-
         if (user) {
             return res.status(409).json({ error: 'User already exists' });
         }

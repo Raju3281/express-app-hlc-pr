@@ -4,7 +4,7 @@ const {
   getCaptcha,
   login,
   createUser,
-} = require("../controllers/userCotroller");
+} = require("../controllers/userController");
 const userRouter = express.Router();
 
 
