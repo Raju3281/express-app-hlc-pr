@@ -4,15 +4,17 @@ const {
   getCaptcha,
   login,
   createUser,
+  getUserById,
 } = require("../controllers/userController");
 const userRouter = express.Router();
 
-
-userRouter.post("/createUser", createUser);
-userRouter.get("/getAllUsers", getAllUsers);
 userRouter.get("/getCaptcha", getCaptcha);
 userRouter.post("/login", login);
+userRouter.post("/createUser", createUser);
+userRouter.get("/getAllUsers", getAllUsers);
+userRouter.get("/getUserById/:id", getUserById);
 
 
 
-module.exports = { userRouter, getCaptcha, login,createUser };
+
+module.exports = { userRouter};

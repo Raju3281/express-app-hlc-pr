@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 // Function to connect to MongoDB
 const connectToDatabase = async () => {
     try {
-        const dbUri ='mongodb://localhost:27017/user-service';
+        const dbUri ='mongodb://localhost:27017/item-management';
         await mongoose.connect(dbUri, {
             useNewUrlParser: true,     // Use new URL string parser
             useUnifiedTopology: true, // Use new server discovery and monitoring engine

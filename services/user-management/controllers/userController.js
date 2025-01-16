@@ -4,9 +4,12 @@ const NodeCache = require('node-cache');
 const { verifyCaptcha } = require("../utils/verifyCaptcha");
 const jsonwebtoken=require('jsonwebtoken');
 const captchaCache = new NodeCache({ stdTTL: 300, checkperiod: 60 }); // TTL of 5 minutes
+
 const getAllUsers=(req,res)=>{
    return res.status(200).json({ error: 'Something went wrong!' });
 }
+
+
 const getCaptcha = (req, res) => {
   let captcha=svgCaptcha.create()
   const key = (Math.random()*100000000).toString().split(".")[0];
@@ -17,6 +20,8 @@ const getCaptcha = (req, res) => {
 
   return res
 };
+
+
 const login=async(req,res)=>{
     const {captcha, txnId,userName,password}=req.body;
     let isValid=verifyCaptcha(captchaCache,req.body)
@@ -48,16 +53,22 @@ const login=async(req,res)=>{
     return res.status(404).json({ message: 'User not found' });
   }
 }
+
+
 const createUser = async (req, res) => {
-    const { userName, email, firstName, password, role } = req.body;
+    const { userName, email, firstName, password, role ,id} = req.body;
 
     try {
         // Check if the user already exists
-        const user = await UserModel.findOne({ userName });
-        if (user) {
-            return res.status(409).json({ error: 'User already exists' });
+        if(id){
+          console.log("Updating user")
+          const user = await UserModel.findByIdAndUpdate(id, { userName, email, firstName, password, role });
+          return res.status(200).json({ message: 'User updated successfully', user: user });
         }
-
+        const user = await UserModel.findOne({ _id:id });
+        if (user) {
+            return res.status(409).json({ error: 'Username already exists' });
+        }
         // Create and save the new user
         const newUser = new UserModel({ userName, email, firstName, password, role });
         const response = await newUser.save();
@@ -70,4 +81,21 @@ const createUser = async (req, res) => {
         return res.status(500).json({ error: error.message });
     }
 };
-module.exports={getAllUsers,getCaptcha,login,createUser};
+
+
+const getUserById=async (req, res) => {
+  const id=req.params.id
+  console.log("first,id",id)
+  try{
+    const user = await UserModel.findOne({ _id: id });
+    console.log("user",user)
+    if(user) {
+      return res.status(200).json({user :user})
+    }
+    return res.status(404).json({ message: 'User not found' });
+  }catch(err){
+      return res.status(500).json({ message: err });
+  }
+ 
+};
+module.exports={getAllUsers,getCaptcha,login,createUser,getUserById};
