@@ -17,12 +17,13 @@ const getCaptcha = (req, res) => {
   res.json({captcha:captcha,
     txnId:key
   })
-
+   
   return res
 };
 
 
 const login=async(req,res)=>{
+  console.log("req.body",req.body)
     const {captcha, txnId,userName,password}=req.body;
     let isValid=verifyCaptcha(captchaCache,req.body)
     if(!isValid){
@@ -36,16 +37,23 @@ const login=async(req,res)=>{
         return res.status(400).json({ message: 'Transaction ID is required' });
     }
   const user=await UserModel.findOne({userName})
+  
   if(user){
+    if(!user.userName){
+      const token= jsonwebtoken.sign({userName:userName,date:Date.now()},process.env.JWT_SECRET_KEY,{ expiresIn: '1h' })
+      if(token){
+        res.status(500).json({message:"User Already Logged in"})
+      }
+    }
     if(user.password===password){
       try{
         const token= jsonwebtoken.sign({userName:userName,date:Date.now()},process.env.JWT_SECRET_KEY,{ expiresIn: '1h' })
+        user.password=undefined
         return res.status(200).json({ message: 'Login Successful',token:token, user: user });
       }catch(e){
         console.log("Error generating JWT token",e)
         return res.status(500).json({ message: 'Error generating JWT token' });
       }
-        
     }else{
         return res.status(401).json({ message: 'Invalid Password' });
     }
@@ -98,4 +106,28 @@ const getUserById=async (req, res) => {
   }
  
 };
+
+const logOut = async (req, res) => {
+  const {userName}=req.body.userName
+  if(!userName){
+    return res.status(400).json({message:"Please Provide Username"})
+  }
+  try{
+    const user =await UserModel.findOne({userName:userName})
+  }catch{
+    return res.status(500).json({ message: 'Error fetching user' });
+  }
+  
+  console.log("User",user)
+  if(!user){
+    return res.status(404).json({ message: 'User not found' });
+  }
+    user.isLoggedIn=false
+    user.token=""
+    try{
+      user.save()
+    }catch{
+      return res.status(500).json({ message: 'Error saving user' });
+    }
+}
 module.exports={getAllUsers,getCaptcha,login,createUser,getUserById};

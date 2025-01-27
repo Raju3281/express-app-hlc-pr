@@ -1,7 +1,7 @@
 
 const jsonwebtoken=require('jsonwebtoken')
 const verifyToken=(req,res,next)=>{
-    const excludedRoutes=["/api/users/getCaptcha","/api/users/login"]
+    const excludedRoutes=["/api/user/getCaptcha","/api/user/login","/api/user/createUser"]
     if(excludedRoutes.includes(req.path)){
         return next();
     }

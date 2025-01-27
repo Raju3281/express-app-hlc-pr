@@ -26,5 +26,31 @@ const createItem =async(req,res)=>{
     }
 }
 
+const getAllItems=async(req,res) => {
+  try{
+    const items=await itemModel.find()
+    return res.json(items)
+  }catch(err){
+       return res.status(500).json({message: err.message})
+  }
+}
+const getItemById=async(req,res) => {
+  const {id}=req.params
+  try{
+    const item=await itemModel.findOne({_id:id})
+    if(item){
+      return res.json(item)
+    }else{
+      return res.status(404).json({message: 'Item not found with id "' + id})
+    }
+  }catch(err){
+    console.log(err)
+    return res.status(500).json({message: err.message})
+  }
+}
 
-module.exports = {createItem:createItem}
+module.exports = {
+  createItem,
+  getAllItems,
+  getItemById
+}

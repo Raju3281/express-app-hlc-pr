@@ -39,6 +39,14 @@ const useSchema=new mongoose.Schema({
         enum: ['user', 'admin','frontDesk','doctor'],
         default: 'user'
     },
+    token:{
+      type: String,
+      default: null
+    },
+    isloggedIn:{
+        type: Boolean,
+        default: false
+    },
     createdAt: {
         type: Date,
         default: Date.now
