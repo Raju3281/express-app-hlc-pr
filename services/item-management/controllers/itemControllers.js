@@ -3,7 +3,7 @@ const itemModel = require('../models/itemModel')
 
 
 const createItem =async(req,res)=>{
-    const {itemName,itemPrice,discountPrice,itemDesc,itemImage,itemId}=req.body
+    const {itemName,itemPrice,discountPrice,itemDesc,itemImage,itemId,itemQuantity,itemCategory}=req.body
     if(itemName&&itemPrice&&itemImage){
         if(itemId){
           const existingItem=itemModel.findOne({_id:itemId})
@@ -13,13 +13,15 @@ const createItem =async(req,res)=>{
             existingItem.discountPrice=discountPrice
             existingItem.itemDesc=itemDesc
             existingItem.itemImage=itemImage
-            await existingItem.save()
+            existingItem.itemQuantity=itemQuantity
+            existingItem.itemCategory=itemCategory
+            await existingItem.updateOne()
             return res.status(200).json({message: 'Item updated successfully'})
           }else{
             return res.status(404).json({message: 'Item not found'})
           }
         }else{
-            const newItem=new itemModel({itemName,itemPrice,discountPrice,itemDesc,itemImage})
+            const newItem=new itemModel({itemName,itemPrice,discountPrice,itemDesc,itemImage,itemQuantity,itemCategory})
             await newItem.save()
             return res.status(201).json({message:'Item created successfully'})
         }
@@ -48,9 +50,23 @@ const getItemById=async(req,res) => {
     return res.status(500).json({message: err.message})
   }
 }
-
+const deleteItemById=async(req,res)=>{
+  const {id}=req.params
+  try{
+    const item=await itemModel.deleteOne({_id:id})
+    if(item){
+      return res.json(item)
+    }else{
+      return res.status(404).json({message: 'Item not found with id "' + id})
+    }
+  }catch(err){
+    console.log(err)
+    return res.status(500).json({message: err.message})
+  }
+}
 module.exports = {
   createItem,
   getAllItems,
-  getItemById
+  getItemById,
+  deleteItemById
 }

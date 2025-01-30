@@ -1,9 +1,9 @@
 const express = require('express')
-const { savePromo } = require('../controllers/promoController')
+const { savePromo, getAllPromoCodes } = require('../controllers/promoController')
 const promoRoutes=express.Router()
 
 promoRoutes.post("/savePromo",savePromo)
-
+promoRoutes.get("/getAllPromoCodes",getAllPromoCodes)
 
 
 

@@ -40,14 +40,14 @@ const login=async(req,res)=>{
   
   if(user){
     if(!user.userName){
-      const token= jsonwebtoken.sign({userName:userName,date:Date.now()},process.env.JWT_SECRET_KEY,{ expiresIn: '1h' })
+      const token= jsonwebtoken.sign({userName:userName,date:Date.now()},process.env.JWT_SECRET_KEY )
       if(token){
         res.status(500).json({message:"User Already Logged in"})
       }
     }
     if(user.password===password){
       try{
-        const token= jsonwebtoken.sign({userName:userName,date:Date.now()},process.env.JWT_SECRET_KEY,{ expiresIn: '1h' })
+        const token= jsonwebtoken.sign({userName:userName,date:Date.now()},process.env.JWT_SECRET_KEY)
         user.password=undefined
         return res.status(200).json({ message: 'Login Successful',token:token, user: user });
       }catch(e){

@@ -43,6 +43,14 @@ const savePromo=async(req,res)=>{
 
 }
 
+const getAllPromoCodes=async(req,res)=>{
+     try{
+        const items=await PromoModel.find()
+        return res.json(items)
+      }catch(err){
+           return res.status(500).json({message: err.message})
+      }
+}
 
 
-module.exports={savePromo}
+module.exports={savePromo,getAllPromoCodes}

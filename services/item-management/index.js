@@ -6,7 +6,8 @@ const { verifyToken } = require("../user-management/middleware/verifyToken");
 const { itemRoutes } = require("./routes/itemRoutes");
 const { connectToDatabase } = require("./config/dbConfig");
 const { promoRoutes } = require("./routes/promoRoutes");
-
+const cors = require('cors');
+app.use(cors());
 dotenv.config();
 
 app.use(bodyParser.json());
